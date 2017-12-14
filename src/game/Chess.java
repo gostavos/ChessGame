@@ -105,4 +105,17 @@ public class Chess {
 		}
 	}
 	
+	public void movePiece(Piece piece, Tile startTile, Tile endTile){
+		if(piece.isValidMove(startTile, endTile)){
+			if(endTile.isOccupied()){ //is an attack move
+				//addera poäng eller nåt
+			}
+			board.moveTo(startTile, endTile);
+		}
+	}
+	
+	public Tile[][] getChessBoard(){
+		return chessBoard;
+	}
+	
 }

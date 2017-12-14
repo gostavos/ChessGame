@@ -73,4 +73,15 @@ public class Pawn extends Piece{
 			return true;
 		return false;
 	}
+
+	@Override
+	public boolean isValidMove(Tile startTile, Tile endTile) {	
+		return isValidDestination(startTile, endTile);
+	}
+
+	@Override
+	public Color getColor() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

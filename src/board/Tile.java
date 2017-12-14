@@ -34,6 +34,10 @@ public class Tile {
 		return y;
 	}
 	
+	public boolean isOccupied(){
+		return isOccupied;
+	}
+	
 	public Piece getPiece(){
 		return piece;
 	}
