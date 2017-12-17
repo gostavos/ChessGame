@@ -10,10 +10,9 @@ public class Rook extends Piece{
 
 	private Color color;
 	private Board board;
-	private Tile chessBoard[][];
 	
-	public Rook(Color color, Type type) {
-		super(color, type);
+	public Rook(Color color, Type type, Board board) {
+		super(color, type, board);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -23,7 +22,7 @@ public class Rook extends Piece{
 		int endX = endTile.getX();
 		int startY = startTile.getY();
 		int startX = startTile.getX();
-		chessBoard = board.getBoard();
+		Tile[][] chessBoard = board.getBoard();
 		if(startY == endY && startX != endX){
 			return moveLeftRight(startX, endX, startY, chessBoard);
 		}else if(startX == endX && startY != endY){
@@ -101,6 +100,12 @@ public class Rook extends Piece{
 	
 	public Color getColor(){
 		return color;
+	}
+
+	@Override
+	public Type getType() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	

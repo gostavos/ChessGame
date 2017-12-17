@@ -1,12 +1,13 @@
 package pieces;
 
+import board.Board;
 import game.Color;
 import game.Type;
 
 public class Knight extends Piece{
 
-	public Knight(Color color, Type type) {
-		super(color, type);
+	public Knight(Color color, Type type, Board board) {
+		super(color, type, board);
 		// TODO Auto-generated constructor stub
 	}
 

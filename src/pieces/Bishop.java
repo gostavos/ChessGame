@@ -1,14 +1,17 @@
 package pieces;
 
+import board.Board;
 import game.Color;
 import game.Type;
 
 public class Bishop extends Piece {
 
-	private static Type type;
-
-	public Bishop(Color color, Type type) {
-		super(color, type);
+	private Type type;
+	private Color color;
+	private Board board;
+	
+	public Bishop(Color color, Type type, Board board) {
+		super(color, type, board);
 		// TODO Auto-generated constructor stub
 	}
 

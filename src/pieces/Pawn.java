@@ -11,9 +11,10 @@ public class Pawn extends Piece{
 	private boolean isFirstMove = true;
 	private Color color;
 	private Board board;
+	private Type type;
 	
-	public Pawn(Color color, Type type) {
-		super(color, type);
+	public Pawn(Color color, Type type, Board board) {
+		super(color, type, board);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -83,5 +84,10 @@ public class Pawn extends Piece{
 	public Color getColor() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public Type getType() {
+		return type;
 	}
 }
