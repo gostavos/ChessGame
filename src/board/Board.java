@@ -15,7 +15,7 @@ public class Board {
 		return gameBoard;
 	}
 	
-	public void moveTo(Tile startTile, Tile endTile){
+	public Tile[][] moveTo(Tile startTile, Tile endTile){
 		int endX = endTile.getX();
 		int endY = endTile.getY();
 		int startX = startTile.getX();
@@ -28,6 +28,7 @@ public class Board {
 			gameBoard[startX][startY] = startTile;
 			gameBoard[endX][endY] = endTile;
 		}
+		return gameBoard;
 	}
 	
 	public boolean isOutOfBounds(int x, int y){

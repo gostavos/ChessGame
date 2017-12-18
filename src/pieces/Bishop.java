@@ -10,15 +10,27 @@ public class Bishop extends Piece {
 	private Color color;
 	private Board board;
 	
-	public Bishop(Color color, Type type, Board board) {
-		super(color, type, board);
+	public Bishop(Color color, Type type) {
+		super(color, type);
+		this.type = type;
+		this.color = color;
 		// TODO Auto-generated constructor stub
+	}
+	
+	//Returns true if movement is diagonal
+	@Override
+	public boolean isValidMovementForPiece(int startY, int startX, int endY, int endX) {
+		return Math.abs(startY - endY) == Math.abs(startX - endX);
 	}
 
 	@Override
-	public boolean isValidPath(int finalX, int finalY) {
-		// TODO Auto-generated method stub
-		return false;
+	public Color getColor() {
+		return color;
+	}
+
+	@Override
+	public Type getType() {
+		return type;
 	}
 
 }
