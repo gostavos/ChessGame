@@ -23,6 +23,7 @@ public class BoardGUI extends JFrame{
 	private Color darkColor = Color.DARK_GRAY;
 	private Color lightColor = Color.LIGHT_GRAY;
 	private boolean hasSelectedPiece = false;
+	private boolean isWhitesTurn = true;
 	private Chess chess;
 	private Tile[][] chessBoard;
 	private BoardGUI boardGUI;
@@ -124,7 +125,10 @@ public class BoardGUI extends JFrame{
 		public void actionPerformed(ActionEvent e){
 
 			CustomJButton button = (CustomJButton)e.getSource();
-
+			if(isWhitesTurn && button.getTile().getPiece().getColor() == game.Color.WHITE ||
+					!isWhitesTurn && button.getTile().getPiece().getColor() == game.Color.BLACK){
+				
+			}
 
 			
 			if(!hasSelectedPiece && button.getTile().getPiece() != null){
@@ -141,6 +145,7 @@ public class BoardGUI extends JFrame{
 			
 
 		}
+		
 		
 	}
 

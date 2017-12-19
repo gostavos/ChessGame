@@ -3,6 +3,7 @@ package game;
 import board.Board;
 import board.Tile;
 import pieces.*;
+import game.*;
 
 public class Chess {
 	
@@ -114,9 +115,46 @@ public class Chess {
 	}
 	
 	public boolean isValidPath(Piece piece, Tile startTile, Tile endTile){
-		
+		if(startTile.getPiece().isValidMovementForPiece(startTile.getY(), startTile.getX(), endTile.getY(), endTile.getX())){
+			Type type = startTile.getPiece().getType();
+			if(type == game.Type.ROOK || type == game.Type.QUEEN ){
+				straightLinePathIsClear(startTile.getY(), startTile.getX(), endTile.getY(), endTile.getX());
+			}
+			
+			if(type == game.Type.BISHOP || type == game.Type.QUEEN){
+				moveDiagonally();
+			}
+		}
 		return false;
 	}
+	
+	public boolean straightLinePathIsClear(int startY, int startX, int endY, int endX){
+		if(startX == endX){ //Vertical movement
+			int yDir = startY - endY; // if yDir is less than 0: direction is down, and vice versa	
+			if(yDir < 0){
+				for(int i = startY; i < endY; i++){
+					if(isOccupiedTile(chessBoard[i][startX]))
+						return false;
+				}
+			}else{
+				for(int i = startY; i > endY; i--){
+					if(isOccupiedTile(chessBoard[i][startX]))
+						return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	public void moveDiagonally(){
+		
+	}
+	
+	public boolean isOccupiedTile(Tile tile){
+		return tile.getPiece() != null;
+	}
+	
+	
 	
 	public Tile[][] getChessBoard(){
 		return chessBoard;
