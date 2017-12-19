@@ -23,10 +23,10 @@ public class Board {
 		if(!isOutOfBounds(endX, endY)){
 			//Moves piece from start tile to end tile, clears piece from start tile
 			Piece piece = startTile.getPiece();
-			endTile = new Tile(endX, endY, piece);
-			startTile = new Tile(startTile.getX(), startTile.getY());
-			gameBoard[startX][startY] = startTile;
-			gameBoard[endX][endY] = endTile;
+			endTile.setPiece(piece);
+			startTile.setPiece(null);
+			gameBoard[startY][startX] = startTile;
+			gameBoard[endY][endX] = endTile;
 		}
 		return gameBoard;
 	}
