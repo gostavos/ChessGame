@@ -8,7 +8,7 @@ import game.Type;
 
 public class Pawn extends Piece{
 
-	private boolean isFirstMove;
+	private boolean firstMove;
 	private Color color;
 	private Type type;
 	
@@ -16,7 +16,7 @@ public class Pawn extends Piece{
 		super(color, type);
 		this.color = color;
 		this.type = type;
-		isFirstMove = true;
+		firstMove = true;
 		// TODO Auto-generated constructor stub
 	}
 	
@@ -27,25 +27,13 @@ public class Pawn extends Piece{
 	 */
 	@Override
 	public boolean isValidMovementForPiece(int startY, int startX, int endY, int endX) {
-		if(isFirstMove){
-			if(color == Color.WHITE && startY - endY == 2 && startX == endX){
-				isFirstMove = false;
-				return true;
-			}else if(color == Color.BLACK && endY - startY == 2 && startX == endX){
-				isFirstMove = false;
-				return true;
-			}
-		}
-		if(color == Color.WHITE && startY - endY == 1 && startX == endX ||
-					color == Color.WHITE && startY - endY == 1 && Math.abs(startX - endX) == 1){
-			isFirstMove = false;
-			return true;
-		}else if(color == Color.BLACK && endY - startY == 1 && startX == endX ||
-					color == Color.BLACK && endY - startY == 1 && Math.abs(startX - endX) == 1){
-			isFirstMove = false;
-			return true;
-		}
-		return false;
+		//because the pawn's special rules regarding when it can attack 
+		//this method is more useful in the Chess class
+		return true;
+	}
+	
+	public boolean isFirstMove() {
+		return firstMove;
 	}
 	
 	@Override
