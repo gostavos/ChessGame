@@ -83,7 +83,7 @@ public class BoardGUI extends JFrame{
 					MyActionListener mal = new MyActionListener();
 					tileButton.addActionListener(mal);
 					tileButton.setPreferredSize(new Dimension(100, 100));
-					add(tileButton);
+					boardPanel.add(tileButton);
 					tile.setTileButton(tileButton);
 					allButtons.add(tileButton);
 				}else{
