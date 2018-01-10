@@ -106,34 +106,45 @@ public class Chess {
 		}
 	}
 	
-	public Tile[][] movePiece(Tile startTile, Tile endTile){
-		
-		endTile.setPiece(startTile.getPiece());
-		startTile.setPiece(null);
-
-		return chessBoard;
+	//returns copy of both the 2d array (chessboard) and the objects inside it
+	public Tile[][] copyBoard() {
+		Tile[][] copiedBoard = new Tile[8][8];
+		for(int row = 0; row < 8; row++){
+			for(int col = 0; col < 8; col++){
+				Tile tile = chessBoard[row][col].clone();
+				copiedBoard[row][col] = tile;
+			}
+		}
+		return copiedBoard;
 	}
 	
-	public boolean isValidPath(Tile startTile, Tile endTile){
-		if(startTile.getPiece().isValidMovementForPiece(startTile.getY(), startTile.getX(), endTile.getY(), endTile.getX())){
-			Type type = startTile.getPiece().getType();
-			if(type == game.Type.ROOK || type == game.Type.QUEEN ){
-				if(straightLinePathIsClear(startTile.getPiece().getColor(), startTile.getY(), startTile.getX(), endTile.getY(), endTile.getX())) {
-					//do something
-					return true;
-				}
-			}
-			
-			if(type == game.Type.BISHOP || type == game.Type.QUEEN){
-				if(diagonalPathIsClear(startTile.getPiece().getColor(), startTile.getY(), startTile.getX(), endTile.getY(), endTile.getX())) {
-					//do something
-					return true;
-				}
-			}
-			
-			if(type == game.Type.PAWN) {
-				Pawn pawn = (Pawn)startTile.getPiece();
-				if(isValidPawnMove(pawn, startTile.getY(), startTile.getX(), endTile.getY(), endTile.getX())) {
+	//creates copies of start and endtile and moves them to their proposed new positions
+	public Tile[][] movePiecesOnCopiedBoard(Tile[][] copiedBoard, Tile startTile, Tile endTile){
+		Tile copiedStartTile = startTile.clone();
+		Tile copiedEndTile = endTile.clone();
+
+		movePiece(copiedStartTile, copiedEndTile);
+		
+		copiedBoard[copiedStartTile.getY()][copiedStartTile.getX()] = copiedStartTile;
+		copiedBoard[copiedEndTile.getY()][copiedEndTile.getX()] = copiedEndTile;
+		return copiedBoard;
+	}
+
+	
+	//returns true if an enemy piece has a valid path to friendly king
+	public boolean isKingChecked(Tile startTile, Tile endTile) {
+		
+		game.Color teamColor = startTile.getPiece().getColor();
+		
+		Tile[][] copiedBoard = copyBoard();
+		copiedBoard = movePiecesOnCopiedBoard(copiedBoard, startTile, endTile);
+		
+		Tile kingTile = findKingsCurrentTile(teamColor, copiedBoard);
+		
+		for(int row = 0; row < 8; row++){
+			for(int col = 0; col < 8; col++){
+				Tile tile = copiedBoard[row][col];
+				if(tile.getPiece() != null && tile.getPiece().getColor() != teamColor && isValidPath(tile, kingTile, copiedBoard)) {
 					return true;
 				}
 			}
@@ -141,10 +152,65 @@ public class Chess {
 		return false;
 	}
 	
-	public boolean isValidPawnMove(Pawn pawn, int startY, int startX, int endY, int endX) {
+	//returns the tile where friendly king is standing
+	public Tile findKingsCurrentTile(game.Color teamColor, Tile[][] copiedBoard) {
+		for(int row = 0; row < 8; row++){
+			for(int col = 0; col < 8; col++){
+				Tile tile = copiedBoard[row][col];
+				if(tile.getPiece() != null && tile.getPiece().getType() == game.Type.KING && tile.getPiece().getColor() == teamColor) {
+					return tile;
+				}
+			}
+		}
+		return null;
+	}
+	
+	public void movePiece(Tile startTile, Tile endTile){
 		
-		if(pawn.getColor() == game.Color.WHITE && startY - endY == 1 && Math.abs(startX - endX) == 1 && isTileOccupiedByEnemy(chessBoard[endY][endX], pawn.getColor()) ||
-				pawn.getColor() == game.Color.BLACK && endY - startY == 1 && Math.abs(startX - endX) == 1 && isTileOccupiedByEnemy(chessBoard[endY][endX], pawn.getColor())) {
+		endTile.setPiece(startTile.getPiece());
+		startTile.setPiece(null);
+
+	}
+	
+	public boolean isValidPath(Tile startTile, Tile endTile, Tile[][] currentChessBoard){
+		if(startTile.getPiece().isValidMovementForPiece(startTile.getY(), startTile.getX(), endTile.getY(), endTile.getX())){
+			Type type = startTile.getPiece().getType();
+			if(type == game.Type.ROOK || type == game.Type.QUEEN ){
+				if(straightLinePathIsClear(currentChessBoard, startTile.getPiece().getColor(), startTile.getY(), startTile.getX(), endTile.getY(), endTile.getX())) {
+					//do something
+					return true;
+				}
+			}
+			
+			if(type == game.Type.BISHOP || type == game.Type.QUEEN){
+				if(diagonalPathIsClear(currentChessBoard, startTile.getPiece().getColor(), startTile.getY(), startTile.getX(), endTile.getY(), endTile.getX())) {
+					//do something
+					return true;
+				}
+			}
+			
+			//returns true if tile is occupied by enemy or is unoccupied
+			if(type == game.Type.KNIGHT || type == game.Type.KING) { 
+				
+				//neither king or knight has to worry about traversed tiles: knights jump and kings only move 1 tile
+				return isTileOccupiedByEnemy(endTile, startTile.getPiece().getColor()) || !isOccupiedTile(endTile);
+				
+			}
+			
+			if(type == game.Type.PAWN) {
+				Pawn pawn = (Pawn)startTile.getPiece();
+				if(isValidPawnMove(currentChessBoard, pawn, startTile.getY(), startTile.getX(), endTile.getY(), endTile.getX())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public boolean isValidPawnMove(Tile[][] currentChessBoard, Pawn pawn, int startY, int startX, int endY, int endX) {
+		
+		if(pawn.getColor() == game.Color.WHITE && startY - endY == 1 && Math.abs(startX - endX) == 1 && isTileOccupiedByEnemy(currentChessBoard[endY][endX], pawn.getColor()) ||
+				pawn.getColor() == game.Color.BLACK && endY - startY == 1 && Math.abs(startX - endX) == 1 && isTileOccupiedByEnemy(currentChessBoard[endY][endX], pawn.getColor())) {
 			//pawn attack-move
 			return true;
 			
@@ -155,13 +221,13 @@ public class Chess {
 					pawn.isFirstMove() && pawn.getColor() == game.Color.BLACK && endY - startY == 2) {
 				//pawn 2 steps on first move
 				//method straigtLinePathIsClear doesn't work fully since pawns can only attack diagonally (which that method doesn't check for)
-				if(straightLinePathIsClear(pawn.getColor(), startY, startX, endY, endX) && !isOccupiedTile(chessBoard[endY][endX])) {
+				if(straightLinePathIsClear(currentChessBoard, pawn.getColor(), startY, startX, endY, endX) && !isOccupiedTile(currentChessBoard[endY][endX])) {
 					return true;
 				}
 			}else if(pawn.getColor() == game.Color.WHITE && startY - endY == 1 ||
 						pawn.getColor() == game.Color.BLACK && endY - startY == 1) {
 				//pawn normal move
-				return !isOccupiedTile(chessBoard[endY][endX]);
+				return !isOccupiedTile(currentChessBoard[endY][endX]);
 			}
 		}
 
@@ -172,91 +238,99 @@ public class Chess {
 	 * returns true if no piece (regardless of color) is blocking the path AND
 	 * the end tile is either unoccupied or occupied by an enemy (considered an attack)
 	 */
-	public boolean straightLinePathIsClear(game.Color teamColor, int startY, int startX, int endY, int endX){
+	public boolean straightLinePathIsClear(Tile[][] currentChessBoard, game.Color teamColor, int startY, int startX, int endY, int endX){
 		if(isVerticalMovement(startX, endX)){ 
 			int yDir = startY - endY; // if yDir is less than 0: direction is down, and vice versa	
 			if(yDir < 0){
 				//for loop must start on the first tile to be traversed to avoid it confusing
 				//itself for an occupied tile (start tile is always occupied)
 				for(int i = ++startY; i < endY; i++){
-					if(!pieceCanMoveToCurrentTile(teamColor, i, startX, endY, endX))
+					if(!pieceCanMoveToCurrentTile(currentChessBoard, teamColor, i, startX, endY, endX))
 						return false;
 				}
+				return true;
 			}else{
 				for(int i = --startY; i > endY; i--){
-					if(!pieceCanMoveToCurrentTile(teamColor, i, startX, endY, endX))
+					if(!pieceCanMoveToCurrentTile(currentChessBoard, teamColor, i, startX, endY, endX))
 						return false;
 				}
+				return true;
 			}
 		}else if(isHorizontalMovement(startY, endY)) {
 			int xDir = startX - endX;
 			if(xDir < 0) { // if xDir is less than 0: direction is right
 				for(int i = ++startX; i < endX; i++) {
-					if(!pieceCanMoveToCurrentTile(teamColor, startY, i, endY, endX))
+					if(!pieceCanMoveToCurrentTile(currentChessBoard, teamColor, startY, i, endY, endX))
 						return false;				
 				}
+				return true;
 			}else {
 				for(int i = --startX; i > endX; i--) {
-					if(!pieceCanMoveToCurrentTile(teamColor, startY, i, endY, endX))
+					if(!pieceCanMoveToCurrentTile(currentChessBoard, teamColor, startY, i, endY, endX))
 						return false;				
 				}
+				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 	
 	/*
 	 * returns true if no piece (regardless of color) is blocking the path AND
 	 * the end tile is either unoccupied or occupied by an enemy (considered an attack)
 	 */
-	public boolean diagonalPathIsClear(game.Color teamColor, int startY, int startX, int endY, int endX) {
+	public boolean diagonalPathIsClear(Tile[][] currentChessBoard, game.Color teamColor, int startY, int startX, int endY, int endX) {
 		int currentX = startX, currentY = startY;
 		if(endY < startY && endX > startX) {
 			//up right
 			while(currentY != endY && currentX != endX) {
 				currentY--;
 				currentX++;
-				if(!pieceCanMoveToCurrentTile(teamColor, currentY, currentX, endY, endX))
+				if(!pieceCanMoveToCurrentTile(currentChessBoard, teamColor, currentY, currentX, endY, endX))
 					return false;
 
 			}
+			return true;
 		}else if(endY > startY && endX > startX) {
 			//down right
 			while(currentY != endY && currentX != endX) {
 				currentY++;
 				currentX++;
-				if(!pieceCanMoveToCurrentTile(teamColor, currentY, currentX, endY, endX))
+				if(!pieceCanMoveToCurrentTile(currentChessBoard, teamColor, currentY, currentX, endY, endX))
 					return false;
 
 			}
+			return true;
 		}else if(endY > startY && endX < startX) {
 			//down left
 			while(currentY != endY && currentX != endX) {
 				currentY++;
 				currentX--;
-				if(!pieceCanMoveToCurrentTile(teamColor, currentY, currentX, endY, endX))
+				if(!pieceCanMoveToCurrentTile(currentChessBoard, teamColor, currentY, currentX, endY, endX))
 					return false;
 
 			}
+			return true;
 		}else if(endY < startY && endX < startX) {
 			//up left
 			while(currentY != endY && currentX != endX) {
 				currentY--;
 				currentX--;
-				if(!pieceCanMoveToCurrentTile(teamColor, currentY, currentX, endY, endX))
+				if(!pieceCanMoveToCurrentTile(currentChessBoard, teamColor, currentY, currentX, endY, endX))
 					return false;
 
 			}
+			return true;
 		}
 		
-		return true;
+		return false;
 	}
 	
-	public boolean pieceCanMoveToCurrentTile(game.Color teamColor, int currentY, int currentX, int endY, int endX) {
+	public boolean pieceCanMoveToCurrentTile(Tile[][] currentChessBoard, game.Color teamColor, int currentY, int currentX, int endY, int endX) {
 		if(isPathsEndPoint(currentY, currentX, endY, endX)) 
-			return !isTileOccupiedByFriendly(chessBoard[currentY][currentX], teamColor);
+			return !isTileOccupiedByFriendly(currentChessBoard[currentY][currentX], teamColor);
 		else
-			return !isOccupiedTile(chessBoard[currentY][currentX]);
+			return !isOccupiedTile(currentChessBoard[currentY][currentX]);
 	}
 	
 	public boolean isPathsEndPoint(int currentY, int currentX, int endY, int endX) {

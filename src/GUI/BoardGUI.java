@@ -33,7 +33,11 @@ public class BoardGUI extends JFrame{
 	private Tile startTile = null;
 	private Tile endTile = null;
 	
-	private final JLabel message = new JLabel("HEJ DIN FAKSFNASNFDASE");
+	private JPanel gridPanel;
+	private JPanel headPanel;
+	
+	private JTextArea statusMessage;
+
 
 
 	
@@ -42,61 +46,86 @@ public class BoardGUI extends JFrame{
 		chessBoard = chess.populateBoard();
 //		setLayout(new GridLayout(8, 8));
 		allButtons = new ArrayList<>();
-		paintBoard(chessBoard);
+		
+		headPanel();
+		gridPanel(chessBoard);
+		mainPanel();
+		
+//		paintBoard(chessBoard);
 		
 		this.setTitle("My Fabulous Chess Börd"); // Setting the title of board
 //		this.setLayout(new GridLayout(8, 8)); // GridLayout will arrange elements in Grid Manager 8 X 8
 		this.setSize(600,600); // Size of the chess board
 		this.setVisible(true);
-	}
-
-	public void menuBarPanel() {
-		JPanel menuPanel = new JPanel();
-		menuPanel.setLayout(new FlowLayout());
-		
-		JMenuBar menuBar = new JMenuBar();
-		JMenu menu = new JMenu("My menu");
-		menu.setMnemonic(KeyEvent.VK_A);
-		menu.getAccessibleContext().setAccessibleDescription("My items");
-		menuBar.add(menu);
-		
-		menuPanel.add(menuBar, 0);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
 	
-	public void paintBoard(Tile[][] chessBoard){
+	public void mainPanel() {
+		JComponent mainPanel = new JPanel();
+		mainPanel.setLayout(new BorderLayout(5,5));
+		mainPanel.add(headPanel, BorderLayout.NORTH);
+		mainPanel.add(gridPanel, BorderLayout.CENTER);
 		
-		JPanel boardPanel = new JPanel();
-		boardPanel.setLayout(new GridLayout(8,8));
-//		GridBagConstraints gbc = new GridBagConstraints();
+		add(mainPanel);
+	}
+
+	//adds menu and textarea above gameboard
+	public void headPanel() {
+		headPanel = new JPanel();
+		headPanel.setLayout(new FlowLayout());
+		
+		JMenuBar menuBar = new JMenuBar();
+		JMenu menu = new JMenu("Menu");
+		menu.setMnemonic(KeyEvent.VK_A);
+		menu.getAccessibleContext().setAccessibleDescription("My items");
+		
+		JMenuItem newGameMenuItem = new JMenuItem("New game");
+		newGameMenuItem.addActionListener(new NewGameActionListener());
+		menu.add(newGameMenuItem);
+		
+		menuBar.add(menu);
+		
+		statusMessage = new JTextArea();
+		statusMessage.setText("Start new game under menu!");
+		statusMessage.setEditable(false);
+		headPanel.add(statusMessage);
+		
+		headPanel.add(menuBar, 0);
+	}
+	
+	public void gridPanel(Tile[][] chessBoard) {
+		gridPanel = new JPanel();
+		gridPanel.setLayout(new GridLayout(8,8));
+		
 		for(int row = 0; row < 8; row++){
 			for(int col = 0; col < 8; col++){
 				
-//				gbc.gridx = col;
-//				gbc.gridy = row;
-				
+				//creates a tile, adds button and actionlistener to tile
 				Tile tile = chessBoard[row][col];
-				CustomJButton tileButton = tile.getTileButton();
-				boolean isnull = (tileButton == null);
-
-				if(tileButton == null || allButtons.size() < 63){
-					tileButton = new CustomJButton(tile);
-					MyActionListener mal = new MyActionListener();
-					tileButton.addActionListener(mal);
-					tileButton.setPreferredSize(new Dimension(100, 100));
-					boardPanel.add(tileButton);
-					tile.setTileButton(tileButton);
-					allButtons.add(tileButton);
-				}else{
-					tileButton = tile.getTileButton();
-				}
-
-
+				CustomJButton tileButton = new CustomJButton(tile);
+				TileButtonActionListener mal = new TileButtonActionListener();
+				tileButton.addActionListener(mal);
+				tileButton.setPreferredSize(new Dimension(100, 100));
+				gridPanel.add(tileButton);
+				tile.setTileButton(tileButton);
+				allButtons.add(tileButton);
+				
 				if((row % 2) == (col % 2)) //Determines checkered pattern
 					tileButton.setBackground(lightColor);
 				else
 					tileButton.setBackground(darkColor);
 				
-
+			}
+		}
+	}
+	
+	public void placeChessPieces(Tile[][] chessBoard) {
+		for(int row = 0; row < 8; row++){
+			for(int col = 0; col < 8; col++){
+				
+				Tile tile = chessBoard[row][col];
+				CustomJButton tileButton = tile.getTileButton();
+				
 				if(tile.getPiece() != null){
 					if(tile.getPiece().getColor() == game.Color.WHITE){
 						if(tile.getPiece().getType() == game.Type.PAWN)
@@ -128,23 +157,53 @@ public class BoardGUI extends JFrame{
 				}else{
 					tileButton.setIcon(null);
 				}
-
 			}
 		}
+	}
+	
+	public void tick() {
+		if(isWhitePlayersTurn) {
+			statusMessage.setText("White player's turn");
+		}else {
+			statusMessage.setText("Black player's turn");
+		}
+	}
+	
+
+	
+	public void changePlayerTurn() {
+		if(isWhitePlayersTurn)
+			isWhitePlayersTurn = false;
+		else
+			isWhitePlayersTurn = true;
+	}
+	
+	public boolean playerSelectedAlliedPiece(CustomJButton button) {
+		return isWhitePlayersTurn && button.getTile().getPiece() != null && button.getTile().getPiece().getColor() == game.Color.WHITE ||
+				!isWhitePlayersTurn && button.getTile().getPiece() != null && button.getTile().getPiece().getColor() == game.Color.BLACK;
 	}
 	
 	public static void main(String[] args) {
 		new BoardGUI();
 	}
 	
-	class MyActionListener implements ActionListener{
+	class NewGameActionListener implements ActionListener{
 		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			placeChessPieces(chessBoard);
+			tick();
 
+		}
+		
+	}
+	
+	
+	
+	class TileButtonActionListener implements ActionListener{
 		
 		@Override
 		public void actionPerformed(ActionEvent e){
-
-		//	button.getTile().getPiece() != null
 			
 			CustomJButton button = (CustomJButton)e.getSource();
 			
@@ -154,54 +213,22 @@ public class BoardGUI extends JFrame{
 				hasSelectedPiece = true;
 			}else if(hasSelectedPiece) {
 				endTile = button.getTile();
-				if(chess.isValidPath(startTile, endTile)) {
-					chessBoard = chess.movePiece(startTile, endTile);
-					paintBoard(chessBoard);
+				if(chess.isValidPath(startTile, endTile, chessBoard) && !chess.isKingChecked(startTile, endTile)) {
+					chess.movePiece(startTile, endTile);
+//					chessBoard = chess.getChessBoard();
+					placeChessPieces(chessBoard);
 					hasSelectedPiece = false;
-					setWhitePlayersTurn(); //changes it to other players turn
+					changePlayerTurn(); //changes it to other players turn
+					tick();
 				}else {
-					System.out.println("Piece can't move there");
+					hasSelectedPiece = false;
+					statusMessage.setText("Illegal move");
 				}	
 
 			}else {
-				System.out.println("Wrong colored piece or empty tile selected");
+				statusMessage.setText("Wrong colored piece or empty tile selected");
 			}
-
-//			if(!hasSelectedPiece && button.getTile().getPiece() != null){
-//
-//				startTile = button.getTile();
-//				hasSelectedPiece = true;
-//			}else if(hasSelectedPiece){
-//				endTile = button.getTile();
-//				if(chess.isValidPath(startTile, endTile)) {
-//					chessBoard = chess.movePiece(startTile, endTile);
-//					paintBoard(chessBoard);
-//					hasSelectedPiece = false;
-//				}else {
-//					hasSelectedPiece = false;
-//					System.out.println("SORRY BRO!!!");
-//				}
-//
-//			}
-			
-			
-
-		}
-		
-		public void setWhitePlayersTurn() {
-			if(isWhitePlayersTurn)
-				isWhitePlayersTurn = false;
-			else
-				isWhitePlayersTurn = true;
-		}
-		
-		public boolean playerSelectedAlliedPiece(CustomJButton button) {
-			return isWhitePlayersTurn && button.getTile().getPiece() != null && button.getTile().getPiece().getColor() == game.Color.WHITE ||
-					!isWhitePlayersTurn && button.getTile().getPiece() != null && button.getTile().getPiece().getColor() == game.Color.BLACK;
-		}
-		
-		
+		}	
 	}
-
 }
 

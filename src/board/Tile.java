@@ -52,6 +52,13 @@ public class Tile {
 		return y;
 	}
 	
+	public Tile clone() {
+		int cloneX = this.x;
+		int cloneY = this.y;
+		Piece clonePiece = this.piece;
+		return new Tile(cloneY, cloneX, clonePiece);
+	}
+	
 	public boolean isOccupied(){
 		return isOccupied;
 	}
