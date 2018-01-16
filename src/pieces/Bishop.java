@@ -9,6 +9,7 @@ public class Bishop extends Piece {
 	private Type type;
 	private Color color;
 	private Board board;
+
 	
 	public Bishop(Color color, Type type) {
 		super(color, type);
@@ -23,6 +24,11 @@ public class Bishop extends Piece {
 		return Math.abs(startY - endY) == Math.abs(startX - endX);
 	}
 
+	@Override
+	public void setFirstMove(boolean bool) {
+
+	}
+	
 	@Override
 	public Color getColor() {
 		return color;

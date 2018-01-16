@@ -9,11 +9,13 @@ public class Rook extends Piece{
 
 	private Color color;
 	private Type type;
+	private boolean isFirstMove;
 	
 	public Rook(Color color, Type type) {
 		super(color, type);
 		this.color = color;
 		this.type = type;
+		this.isFirstMove = true;
 		// TODO Auto-generated constructor stub
 	}
 	
@@ -24,6 +26,9 @@ public class Rook extends Piece{
 				startX == endX && startY != endY);
 	}
 	
+
+	
+	@Override
 	public Color getColor(){
 		return color;
 	}
@@ -31,6 +36,11 @@ public class Rook extends Piece{
 	@Override
 	public Type getType() {
 		return type;
+	}
+
+
+	public void setFirstMove(boolean bool) {
+		isFirstMove = bool;
 	}
 	
 //	@Override

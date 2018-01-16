@@ -106,17 +106,31 @@ public class BoardGUI extends JFrame{
 				TileButtonActionListener mal = new TileButtonActionListener();
 				tileButton.addActionListener(mal);
 				tileButton.setPreferredSize(new Dimension(100, 100));
+//				tileButton.setBorder(BorderFactory.createLineBorder(Color.green));
 				gridPanel.add(tileButton);
 				tile.setTileButton(tileButton);
 				allButtons.add(tileButton);
-				
-				if((row % 2) == (col % 2)) //Determines checkered pattern
-					tileButton.setBackground(lightColor);
-				else
-					tileButton.setBackground(darkColor);
+			
+				paintCheckeredPattern(row, col, tileButton);
 				
 			}
 		}
+	}
+	
+	public void resetCheckeredPattern() {
+		for(int row = 0; row < 8; row++){
+			for(int col = 0; col < 8; col++){
+				Tile tile = chessBoard[row][col];
+				paintCheckeredPattern(row, col, tile.getTileButton());
+			}
+		}
+	}
+	
+	public void paintCheckeredPattern(int row, int col, CustomJButton button) {
+		if((row % 2) == (col % 2)) //Determines checkered pattern
+			button.setBackground(lightColor);
+		else
+			button.setBackground(darkColor);
 	}
 	
 	public void placeChessPieces(Tile[][] chessBoard) {
@@ -209,19 +223,26 @@ public class BoardGUI extends JFrame{
 			
 			
 			if(!hasSelectedPiece && playerSelectedAlliedPiece(button)){
+				tick();
 				startTile = button.getTile();
+				startTile.setBackground(java.awt.Color.blue);
+				chess.findAllValidMoves(startTile);
 				hasSelectedPiece = true;
 			}else if(hasSelectedPiece) {
 				endTile = button.getTile();
-				if(chess.isValidPath(startTile, endTile, chessBoard) && !chess.isKingChecked(startTile, endTile)) {
+				if(chess.isValidMove(startTile, endTile, chessBoard)) {
 					chess.movePiece(startTile, endTile);
 //					chessBoard = chess.getChessBoard();
 					placeChessPieces(chessBoard);
 					hasSelectedPiece = false;
+//					chess.resetTileBorders();
+					resetCheckeredPattern();
 					changePlayerTurn(); //changes it to other players turn
 					tick();
 				}else {
 					hasSelectedPiece = false;
+//					chess.resetTileBorders();
+					resetCheckeredPattern();
 					statusMessage.setText("Illegal move");
 				}	
 

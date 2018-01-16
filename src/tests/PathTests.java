@@ -25,7 +25,7 @@ public class PathTests {
 		rookTile.setPiece(rook);
 		blockingTile.setPiece(blockingPiece);
 		
-		assertEquals(chess.straightLinePathIsClear(game.Color.WHITE, 0, 7, 0, 3), false);
+		assertEquals(chess.straightLinePathIsClear(chessBoard, game.Color.WHITE, 0, 7, 0, 3), false);
 	}
 	
 	@Test
@@ -38,7 +38,7 @@ public class PathTests {
 		
 		blockingTile.setPiece(blockingPiece);
 		
-		assertEquals(chess.straightLinePathIsClear(game.Color.WHITE,2, 2, 5, 2), false);
+		assertEquals(chess.straightLinePathIsClear(chessBoard, game.Color.WHITE,2, 2, 5, 2), false);
 	}
 	
 	@Test
@@ -46,7 +46,7 @@ public class PathTests {
 		Chess chess = new Chess();
 		Tile[][] chessBoard = chess.populateBoard();
 		
-		assertEquals(chess.straightLinePathIsClear(game.Color.WHITE,4, 0, 4, 4), true);
+		assertEquals(chess.straightLinePathIsClear(chessBoard, game.Color.WHITE,4, 0, 4, 4), true);
 	}
 	
 	@Test
@@ -54,7 +54,7 @@ public class PathTests {
 		Chess chess = new Chess();
 		Tile[][] chessBoard = chess.populateBoard();
 		
-		assertEquals(chess.straightLinePathIsClear(game.Color.WHITE,2, 3, 4, 3), true);
+		assertEquals(chess.straightLinePathIsClear(chessBoard, game.Color.WHITE,2, 3, 4, 3), true);
 	}
 	
 	@Test
@@ -65,7 +65,7 @@ public class PathTests {
 		Tile blockingTile = chessBoard[3][3];
 		blockingTile.setPiece(blockingPiece);
 		
-		assertEquals(chess.diagonalPathIsClear(game.Color.WHITE,5, 1, 2, 4), false);
+		assertEquals(chess.diagonalPathIsClear(chessBoard, game.Color.WHITE,5, 1, 2, 4), false);
 	}
 	
 	@Test
@@ -73,7 +73,7 @@ public class PathTests {
 		Chess chess = new Chess();
 		Tile[][] chessBoard = chess.populateBoard();
 		
-		assertEquals(chess.diagonalPathIsClear(game.Color.WHITE,5, 1, 2, 4), true);
+		assertEquals(chess.diagonalPathIsClear(chessBoard, game.Color.WHITE,5, 1, 2, 4), true);
 
 	}
 	
@@ -85,7 +85,7 @@ public class PathTests {
 		Tile blockingTile = chessBoard[3][3];
 		blockingTile.setPiece(blockingPiece);
 		
-		assertEquals(chess.diagonalPathIsClear(game.Color.WHITE,2, 2, 4, 4), false);
+		assertEquals(chess.diagonalPathIsClear(chessBoard, game.Color.WHITE,2, 2, 4, 4), false);
 	}
 	
 	@Test
@@ -93,7 +93,7 @@ public class PathTests {
 		Chess chess = new Chess();
 		Tile[][] chessBoard = chess.populateBoard();
 		
-		assertEquals(chess.diagonalPathIsClear(game.Color.WHITE,2, 2, 4, 4), true);
+		assertEquals(chess.diagonalPathIsClear(chessBoard, game.Color.WHITE,2, 2, 4, 4), true);
 	}
 	
 	@Test
@@ -104,7 +104,7 @@ public class PathTests {
 		Tile blockingTile = chessBoard[3][3];
 		blockingTile.setPiece(blockingPiece);
 		
-		assertEquals(chess.diagonalPathIsClear(game.Color.WHITE,5, 5, 2, 2), false);
+		assertEquals(chess.diagonalPathIsClear(chessBoard, game.Color.WHITE,5, 5, 2, 2), false);
 	}
 	
 	@Test
@@ -112,7 +112,7 @@ public class PathTests {
 		Chess chess = new Chess();
 		Tile[][] chessBoard = chess.populateBoard();
 
-		assertEquals(chess.diagonalPathIsClear(game.Color.WHITE,5, 5, 2, 2), true);
+		assertEquals(chess.diagonalPathIsClear(chessBoard, game.Color.WHITE,5, 5, 2, 2), true);
 	}
 	
 	@Test
@@ -123,7 +123,7 @@ public class PathTests {
 		Tile blockingTile = chessBoard[3][3];
 		blockingTile.setPiece(blockingPiece);
 		
-		assertEquals(chess.diagonalPathIsClear(game.Color.WHITE,1, 5, 4, 2), false);
+		assertEquals(chess.diagonalPathIsClear(chessBoard, game.Color.WHITE,1, 5, 4, 2), false);
 	}
 	
 	@Test
@@ -131,7 +131,7 @@ public class PathTests {
 		Chess chess = new Chess();
 		Tile[][] chessBoard = chess.populateBoard();
 		
-		assertEquals(chess.diagonalPathIsClear(game.Color.WHITE,2, 4, 4, 2), true);
+		assertEquals(chess.diagonalPathIsClear(chessBoard, game.Color.WHITE,2, 4, 4, 2), true);
 	}
 	
 	@Test
@@ -142,7 +142,7 @@ public class PathTests {
 		Tile blockingTile = chessBoard[3][3];
 		blockingTile.setPiece(blockingPiece);
 		
-		assertEquals(chess.pieceCanMoveToCurrentTile(game.Color.WHITE, 3, 3, 3, 3), false);
+		assertEquals(chess.pieceCanMoveToCurrentTile(chessBoard, game.Color.WHITE, 3, 3, 3, 3), false);
 	}
 	
 	@Test
@@ -150,7 +150,7 @@ public class PathTests {
 		Chess chess = new Chess();
 		Tile[][] chessBoard = chess.populateBoard();
 		
-		assertEquals(chess.pieceCanMoveToCurrentTile(game.Color.WHITE, 3, 3, 3, 3), true);
+		assertEquals(chess.pieceCanMoveToCurrentTile(chessBoard, game.Color.WHITE, 3, 3, 3, 3), true);
 	}
 	
 	@Test
@@ -161,7 +161,7 @@ public class PathTests {
 		Tile blockingTile = chessBoard[3][3];
 		blockingTile.setPiece(blockingPiece);
 		
-		assertEquals(chess.pieceCanMoveToCurrentTile(game.Color.WHITE, 3, 3, 2, 4), false);
+		assertEquals(chess.pieceCanMoveToCurrentTile(chessBoard, game.Color.WHITE, 3, 3, 2, 4), false);
 	}
 	
 	

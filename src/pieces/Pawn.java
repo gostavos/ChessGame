@@ -8,7 +8,7 @@ import game.Type;
 
 public class Pawn extends Piece{
 
-	private boolean firstMove;
+	private boolean isFirstMove;
 	private Color color;
 	private Type type;
 	
@@ -16,7 +16,7 @@ public class Pawn extends Piece{
 		super(color, type);
 		this.color = color;
 		this.type = type;
-		firstMove = true;
+		this.isFirstMove = true;
 		// TODO Auto-generated constructor stub
 	}
 	
@@ -31,9 +31,13 @@ public class Pawn extends Piece{
 		//this method is more useful in the Chess class
 		return true;
 	}
+
+	public void setFirstMove(boolean bool) {
+		isFirstMove = bool;
+	}
 	
 	public boolean isFirstMove() {
-		return firstMove;
+		return isFirstMove;
 	}
 	
 	@Override

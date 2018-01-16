@@ -20,6 +20,8 @@ public abstract class Piece {
 
 	public abstract boolean isValidMovementForPiece(int startY, int startX, int endY, int endX);
 	
+	public abstract void setFirstMove(boolean bool);
+	
 	public abstract Color getColor();
 	
 	public abstract Type getType();

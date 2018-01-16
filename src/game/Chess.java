@@ -4,6 +4,7 @@ import board.Board;
 import board.Tile;
 import pieces.*;
 import game.*;
+import java.awt.Color;
 
 public class Chess {
 	
@@ -33,31 +34,31 @@ public class Chess {
 	
 	public void addWhitePieces(){
 		for(int i = 0; i < 8; i++){
-			Piece pawn = new Pawn(Color.WHITE, Type.PAWN);
+			Piece pawn = new Pawn(game.Color.WHITE, game.Type.PAWN);
 			Tile tile = new Tile(6, i, pawn); //adds pawn to row 6
 			chessBoard[6][i] = tile; //adds pawn to that tile
 		}
 		
 		for(int i = 0; i < 8; i+=7){
-			Piece rook = new Rook(Color.WHITE, Type.ROOK);
+			Piece rook = new Rook(game.Color.WHITE, game.Type.ROOK);
 			Tile tile = new Tile(7, i, rook); //adds 2 rooks
 			chessBoard[7][i] = tile;
 		}
 		
 		for(int i = 1; i < 8; i+=5){
-			Piece knight = new Knight(Color.WHITE, Type.KNIGHT);
+			Piece knight = new Knight(game.Color.WHITE, game.Type.KNIGHT);
 			Tile tile = new Tile(7, i, knight);
 			chessBoard[7][i] = tile;
 		}
 		
 		for(int i = 2; i < 8; i +=3){
-			Piece bishop = new Bishop(Color.WHITE, Type.BISHOP);
+			Piece bishop = new Bishop(game.Color.WHITE, game.Type.BISHOP);
 			Tile tile = new Tile(7, i, bishop);
 			chessBoard[7][i] = tile;
 		}
 		
-		Piece queen = new Queen(Color.WHITE, Type.QUEEN);
-		Piece king = new King(Color.WHITE, Type.KING);
+		Piece queen = new Queen(game.Color.WHITE, game.Type.QUEEN);
+		Piece king = new King(game.Color.WHITE, game.Type.KING);
 		Tile tile = new Tile(7, 3, queen);
 		Tile tile2 = new Tile(7, 4, king);
 		chessBoard[7][3] = tile;
@@ -66,31 +67,31 @@ public class Chess {
 	
 	public void addBlackPieces(){
 		for(int i = 0; i < 8; i++){
-			Piece pawn = new Pawn(Color.BLACK, Type.PAWN);
+			Piece pawn = new Pawn(game.Color.BLACK, game.Type.PAWN);
 			Tile tile = new Tile(1, i, pawn);
 			chessBoard[1][i] = tile;
 		}
 		
 		for(int i = 0; i < 8; i+=7){
-			Piece rook = new Rook(Color.BLACK, Type.ROOK);
+			Piece rook = new Rook(game.Color.BLACK, game.Type.ROOK);
 			Tile tile = new Tile(0, i, rook);
 			chessBoard[0][i] = tile;
 		}
 		
 		for(int i = 1; i < 8; i +=5){
-			Piece knight = new Knight(Color.BLACK, Type.KNIGHT);
+			Piece knight = new Knight(game.Color.BLACK, game.Type.KNIGHT);
 			Tile tile = new Tile(0, i, knight);
 			chessBoard[0][i] = tile;
 		}
 		
 		for(int i = 2; i < 8; i +=3){
-			Piece bishop = new Bishop(Color.BLACK, Type.BISHOP);
+			Piece bishop = new Bishop(game.Color.BLACK, game.Type.BISHOP);
 			Tile tile = new Tile(0, i, bishop);
 			chessBoard[0][i] = tile;
 		}
 		
-		Piece queen = new Queen(Color.BLACK, Type.QUEEN);
-		Piece king = new King(Color.BLACK, Type.KING);
+		Piece queen = new Queen(game.Color.BLACK, game.Type.QUEEN);
+		Piece king = new King(game.Color.BLACK, game.Type.KING);
 		Tile tile = new Tile(0, 3, queen);
 		Tile tile2 = new Tile(0, 4, king);
 		chessBoard[0][3] = tile;
@@ -130,17 +131,8 @@ public class Chess {
 		return copiedBoard;
 	}
 
-	
 	//returns true if an enemy piece has a valid path to friendly king
-	public boolean isKingChecked(Tile startTile, Tile endTile) {
-		
-		game.Color teamColor = startTile.getPiece().getColor();
-		
-		Tile[][] copiedBoard = copyBoard();
-		copiedBoard = movePiecesOnCopiedBoard(copiedBoard, startTile, endTile);
-		
-		Tile kingTile = findKingsCurrentTile(teamColor, copiedBoard);
-		
+	public boolean pieceHasKingChecked(Tile[][] copiedBoard, Tile startTile, Tile kingTile, game.Color teamColor) {
 		for(int row = 0; row < 8; row++){
 			for(int col = 0; col < 8; col++){
 				Tile tile = copiedBoard[row][col];
@@ -150,6 +142,18 @@ public class Chess {
 			}
 		}
 		return false;
+	}
+	
+	//moves pieces to new location according to player's move, then checks if king is checked
+	public boolean isKingChecked(Tile startTile, Tile endTile) {
+		game.Color teamColor = startTile.getPiece().getColor();
+		
+		Tile[][] copiedBoard = copyBoard();
+		copiedBoard = movePiecesOnCopiedBoard(copiedBoard, startTile, endTile);
+		
+		Tile kingTile = findKingsCurrentTile(teamColor, copiedBoard);
+		
+		return pieceHasKingChecked(copiedBoard, startTile, kingTile, teamColor);
 	}
 	
 	//returns the tile where friendly king is standing
@@ -166,27 +170,58 @@ public class Chess {
 	}
 	
 	public void movePiece(Tile startTile, Tile endTile){
-		
+		setFirstMoveToFalse(startTile.getPiece());
 		endTile.setPiece(startTile.getPiece());
 		startTile.setPiece(null);
 
 	}
 	
+	public void setFirstMoveToFalse(Piece piece){
+		game.Type pieceType = piece.getType();
+		if(pieceType == game.Type.PAWN ||
+				pieceType == game.Type.ROOK || 
+					pieceType == game.Type.KING) {
+			piece.setFirstMove(false);
+		}
+			
+	}
+	
+	//finds all valid moves piece can make, turns those tiles green
+	public void findAllValidMoves(Tile startTile) {
+		for(int row = 0; row < 8; row++){
+			for(int col = 0; col < 8; col++){
+				Tile tile  = chessBoard[row][col];
+				if(startTile != tile && isValidMove(startTile, tile, chessBoard)) {
+					tile.setBackground(java.awt.Color.green);
+				}
+			}
+		}
+	}
+	
+	public boolean isValidMove(Tile startTile, Tile endTile, Tile[][] currentChessBoard) {
+		return isValidPath(startTile, endTile, currentChessBoard) && !isKingChecked(startTile, endTile);
+	}
+	
 	public boolean isValidPath(Tile startTile, Tile endTile, Tile[][] currentChessBoard){
 		if(startTile.getPiece().isValidMovementForPiece(startTile.getY(), startTile.getX(), endTile.getY(), endTile.getX())){
 			Type type = startTile.getPiece().getType();
-			if(type == game.Type.ROOK || type == game.Type.QUEEN ){
+			if(type == game.Type.ROOK){
 				if(straightLinePathIsClear(currentChessBoard, startTile.getPiece().getColor(), startTile.getY(), startTile.getX(), endTile.getY(), endTile.getX())) {
 					//do something
 					return true;
 				}
 			}
 			
-			if(type == game.Type.BISHOP || type == game.Type.QUEEN){
+			if(type == game.Type.BISHOP){
 				if(diagonalPathIsClear(currentChessBoard, startTile.getPiece().getColor(), startTile.getY(), startTile.getX(), endTile.getY(), endTile.getX())) {
 					//do something
 					return true;
 				}
+			}
+			
+			if(type == game.Type.QUEEN) {
+				return straightLinePathIsClear(currentChessBoard, startTile.getPiece().getColor(),startTile.getY(), startTile.getX(), endTile.getY(), endTile.getX()) ||
+						diagonalPathIsClear(currentChessBoard, startTile.getPiece().getColor(), startTile.getY(), startTile.getX(), endTile.getY(), endTile.getX());
 			}
 			
 			//returns true if tile is occupied by enemy or is unoccupied
@@ -244,13 +279,13 @@ public class Chess {
 			if(yDir < 0){
 				//for loop must start on the first tile to be traversed to avoid it confusing
 				//itself for an occupied tile (start tile is always occupied)
-				for(int i = ++startY; i < endY; i++){
+				for(int i = ++startY; i < endY+1; i++){
 					if(!pieceCanMoveToCurrentTile(currentChessBoard, teamColor, i, startX, endY, endX))
 						return false;
 				}
 				return true;
 			}else{
-				for(int i = --startY; i > endY; i--){
+				for(int i = --startY; i > endY-1; i--){
 					if(!pieceCanMoveToCurrentTile(currentChessBoard, teamColor, i, startX, endY, endX))
 						return false;
 				}
@@ -259,13 +294,13 @@ public class Chess {
 		}else if(isHorizontalMovement(startY, endY)) {
 			int xDir = startX - endX;
 			if(xDir < 0) { // if xDir is less than 0: direction is right
-				for(int i = ++startX; i < endX; i++) {
+				for(int i = ++startX; i < endX+1; i++) {
 					if(!pieceCanMoveToCurrentTile(currentChessBoard, teamColor, startY, i, endY, endX))
 						return false;				
 				}
 				return true;
 			}else {
-				for(int i = --startX; i > endX; i--) {
+				for(int i = --startX; i > endX-1; i--) {
 					if(!pieceCanMoveToCurrentTile(currentChessBoard, teamColor, startY, i, endY, endX))
 						return false;				
 				}
@@ -343,10 +378,6 @@ public class Chess {
 	
 	public boolean isHorizontalMovement(int startY, int endY) {
 		return startY == endY;
-	}
-	
-	public void moveDiagonally(){
-		
 	}
 	
 	//returns true if tile is occupied by a friendly (same color) piece

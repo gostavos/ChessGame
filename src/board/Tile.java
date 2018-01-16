@@ -1,6 +1,11 @@
 package board;
 
 import pieces.Piece;
+
+import java.awt.Color;
+
+import javax.swing.BorderFactory;
+
 import GUI.CustomJButton;
 
 public class Tile {
@@ -8,6 +13,7 @@ public class Tile {
 	private	int x;
 	private int y;
 	private boolean isOccupied;
+	private boolean isSelected = false;
 	private Piece piece;
 	private CustomJButton tileButton;
 	
@@ -36,12 +42,9 @@ public class Tile {
 		return tileButton;
 	}
 	
-	public void setX(int x){
-		this.x = x;
-	}
-	
-	public void setY(int y){
-		this.y = y;
+	public void setBackground(Color color) {
+//		tileButton.setBorder(BorderFactory.createLineBorder(color));
+		tileButton.setBackground(color);
 	}
 	
 	public int getX(){

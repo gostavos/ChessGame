@@ -33,6 +33,12 @@ public class Knight extends Piece{
 		return type;
 	}
 
+	@Override
+	public void setFirstMove(boolean bool) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 	
 
