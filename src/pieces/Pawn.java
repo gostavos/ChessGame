@@ -50,6 +50,15 @@ public class Pawn extends Piece{
 		return type;
 	}
 
+	@Override
+	public Piece clone() {
+		game.Color cloneColor = this.color;
+		game.Type cloneType = this.type;
+		Pawn pawn = new Pawn(cloneColor, cloneType);
+		pawn.setFirstMove(this.isFirstMove);
+		return pawn;
+	}
+
 
 
 //	@Override

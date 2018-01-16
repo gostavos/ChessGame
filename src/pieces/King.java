@@ -38,4 +38,11 @@ public class King extends Piece {
 	public Type getType() {
 		return type;
 	}
+
+	@Override
+	public Piece clone() {
+		Piece king = new King(this.color, this.type);
+		king.setFirstMove(this.isFirstMove);
+		return king;
+	}
 }

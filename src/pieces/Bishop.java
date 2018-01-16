@@ -39,4 +39,9 @@ public class Bishop extends Piece {
 		return type;
 	}
 
+	@Override
+	public Piece clone() {
+		return new Bishop(this.color, this.type);
+	}
+
 }

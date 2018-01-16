@@ -22,6 +22,8 @@ public abstract class Piece {
 	
 	public abstract void setFirstMove(boolean bool);
 	
+	public abstract Piece clone();
+	
 	public abstract Color getColor();
 	
 	public abstract Type getType();

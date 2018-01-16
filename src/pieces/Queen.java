@@ -39,5 +39,12 @@ public class Queen extends Piece {
 		
 	}
 
+	@Override
+	public Piece clone() {
+		game.Color cloneColor = this.color;
+		game.Type cloneType = this.type;
+		return new Queen(cloneColor, cloneType);
+	}
+
 
 }

@@ -113,6 +113,10 @@ public class Chess {
 		for(int row = 0; row < 8; row++){
 			for(int col = 0; col < 8; col++){
 				Tile tile = chessBoard[row][col].clone();
+				if(tile.getPiece()!=null) {
+					Piece piece = tile.getPiece().clone();
+					tile.setPiece(piece);
+				}
 				copiedBoard[row][col] = tile;
 			}
 		}
@@ -149,7 +153,7 @@ public class Chess {
 		game.Color teamColor = startTile.getPiece().getColor();
 		
 		Tile[][] copiedBoard = copyBoard();
-		copiedBoard = movePiecesOnCopiedBoard(copiedBoard, startTile, endTile);
+		copiedBoard = movePiecesOnCopiedBoard(copiedBoard, copiedBoard[startTile.getY()][startTile.getX()], copiedBoard[endTile.getY()][endTile.getX()]);
 		
 		Tile kingTile = findKingsCurrentTile(teamColor, copiedBoard);
 		

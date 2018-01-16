@@ -42,6 +42,13 @@ public class Rook extends Piece{
 	public void setFirstMove(boolean bool) {
 		isFirstMove = bool;
 	}
+
+	@Override
+	public Piece clone() {
+		Piece rook = new Rook(this.color, this.type);
+		rook.setFirstMove(this.isFirstMove);
+		return rook;
+	}
 	
 //	@Override
 //	public boolean isValidPath(Tile startTile, Tile endTile) {
