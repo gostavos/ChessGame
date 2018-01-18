@@ -50,6 +50,15 @@ public class Rook extends Piece{
 		return rook;
 	}
 	
+	@Override
+	public boolean getIsFirstMove() {
+		return isFirstMove;
+	}
+	
+	public String toString() {
+		return color.toString() + " " + type.toString() + " " + isFirstMove;
+	}
+	
 //	@Override
 //	public boolean isValidPath(Tile startTile, Tile endTile) {
 //		int endY = endTile.getY();

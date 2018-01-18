@@ -19,10 +19,9 @@ public class Chess {
 		
 	}
 	
-	public Tile[][] populateBoard(){
+	public Tile[][] placePiecesOnStartingPositions(){
 		addWhitePieces(); //adds white pieces
 		addBlackPieces(); //adds black pieces
-		addUnoccupiedTiles(); //adds rest of the tiles
 		return chessBoard;
 	}
 	
@@ -32,80 +31,71 @@ public class Chess {
 //		board.moveTo(startTile, endTile);
 //	}
 	
+	public Tile[][] initiateChessBoard(){
+		//returns double array [8][8] of empty tiles
+		for(int row = 0; row < 8; row++) {
+			for(int col = 0; col < 8; col++) {
+				Tile tile = new Tile(row, col);
+				chessBoard[row][col] = tile;
+			}
+		}
+		return chessBoard;
+	}
+	
 	public void addWhitePieces(){
 		for(int i = 0; i < 8; i++){
 			Piece pawn = new Pawn(game.Color.WHITE, game.Type.PAWN);
-			Tile tile = new Tile(6, i, pawn); //adds pawn to row 6
-			chessBoard[6][i] = tile; //adds pawn to that tile
+			chessBoard[6][i].setPiece(pawn);
 		}
 		
 		for(int i = 0; i < 8; i+=7){
 			Piece rook = new Rook(game.Color.WHITE, game.Type.ROOK);
-			Tile tile = new Tile(7, i, rook); //adds 2 rooks
-			chessBoard[7][i] = tile;
+			chessBoard[7][i].setPiece(rook);
 		}
 		
 		for(int i = 1; i < 8; i+=5){
 			Piece knight = new Knight(game.Color.WHITE, game.Type.KNIGHT);
-			Tile tile = new Tile(7, i, knight);
-			chessBoard[7][i] = tile;
+			chessBoard[7][i].setPiece(knight);
 		}
 		
 		for(int i = 2; i < 8; i +=3){
 			Piece bishop = new Bishop(game.Color.WHITE, game.Type.BISHOP);
-			Tile tile = new Tile(7, i, bishop);
-			chessBoard[7][i] = tile;
+			chessBoard[7][i].setPiece(bishop);
 		}
 		
 		Piece queen = new Queen(game.Color.WHITE, game.Type.QUEEN);
 		Piece king = new King(game.Color.WHITE, game.Type.KING);
-		Tile tile = new Tile(7, 3, queen);
-		Tile tile2 = new Tile(7, 4, king);
-		chessBoard[7][3] = tile;
-		chessBoard[7][4] = tile2;
+
+		chessBoard[7][3].setPiece(queen);
+		chessBoard[7][4].setPiece(king);
 	}
 	
 	public void addBlackPieces(){
 		for(int i = 0; i < 8; i++){
 			Piece pawn = new Pawn(game.Color.BLACK, game.Type.PAWN);
-			Tile tile = new Tile(1, i, pawn);
-			chessBoard[1][i] = tile;
+			chessBoard[1][i].setPiece(pawn);
 		}
 		
 		for(int i = 0; i < 8; i+=7){
 			Piece rook = new Rook(game.Color.BLACK, game.Type.ROOK);
-			Tile tile = new Tile(0, i, rook);
-			chessBoard[0][i] = tile;
+			chessBoard[0][i].setPiece(rook);
 		}
 		
 		for(int i = 1; i < 8; i +=5){
 			Piece knight = new Knight(game.Color.BLACK, game.Type.KNIGHT);
-			Tile tile = new Tile(0, i, knight);
-			chessBoard[0][i] = tile;
+			chessBoard[0][i].setPiece(knight);
 		}
 		
 		for(int i = 2; i < 8; i +=3){
 			Piece bishop = new Bishop(game.Color.BLACK, game.Type.BISHOP);
-			Tile tile = new Tile(0, i, bishop);
-			chessBoard[0][i] = tile;
+			chessBoard[0][i].setPiece(bishop);
 		}
 		
 		Piece queen = new Queen(game.Color.BLACK, game.Type.QUEEN);
 		Piece king = new King(game.Color.BLACK, game.Type.KING);
-		Tile tile = new Tile(0, 3, queen);
-		Tile tile2 = new Tile(0, 4, king);
-		chessBoard[0][3] = tile;
-		chessBoard[0][4] = tile2;
+		chessBoard[0][3].setPiece(king);
+		chessBoard[0][4].setPiece(queen);
  	}
-
-	public void addUnoccupiedTiles(){
-		for(int row = 2; row < 6; row++){
-			for(int col = 0; col < 8; col++){
-				Tile tile = new Tile(row, col);
-				chessBoard[row][col] = tile;
-			}
-		}
-	}
 	
 	//returns copy of both the 2d array (chessboard) and the objects inside it
 	public Tile[][] copyBoard() {
@@ -229,11 +219,13 @@ public class Chess {
 			}
 			
 			//returns true if tile is occupied by enemy or is unoccupied
-			if(type == game.Type.KNIGHT || type == game.Type.KING) { 
-				
-				//neither king or knight has to worry about traversed tiles: knights jump and kings only move 1 tile
+			if(type == game.Type.KNIGHT) { 	
+				//knight doesn't have to worry about traversed tile as it jumps
 				return isTileOccupiedByEnemy(endTile, startTile.getPiece().getColor()) || !isOccupiedTile(endTile);
-				
+			}
+			
+			if(type == game.Type.KING) {
+				return isTileOccupiedByEnemy(endTile, startTile.getPiece().getColor()) || !isOccupiedTile(endTile) || isCastling(startTile, endTile);
 			}
 			
 			if(type == game.Type.PAWN) {
@@ -244,6 +236,34 @@ public class Chess {
 			}
 		}
 		return false;
+	}
+	
+	public boolean isCastling(Tile[][] chessBoard, Tile startTile, Tile endTile) {
+		return endTile.getPiece().getType() == game.Type.ROOK && 
+				endTile.getPiece().getColor() == startTile.getPiece().getColor() && 
+				straightLinePathIsClear(chessBoard, startTile.getPiece().getColor(),startTile.getY(), startTile.getX(), endTile.getY(), endTile.getX()) && 
+				startTile.getPiece().getIsFirstMove() == true && 
+				endTile.getPiece().getIsFirstMove() == true && 
+				isLegalCastlingMove(startTile, endTile);
+	}
+	
+	public boolean isLegalCastlingMove(Tile startTile, Tile endTile) {
+		// if xDistance is greater than 2, it is a long castling (which is always left)
+		int xDistance = Math.abs(startTile.getX() - endTile.getX());
+		if(xDistance > 3) {
+			for(int i = 4; i > 0; i--) {
+				if(isKingChecked(chessBoard[startTile.getY()][startTile.getX()], chessBoard[startTile.getY()][i])){
+					return false;
+				}	
+			}
+		}else {
+			for(int i = 4; i < 7; i++) {
+				if(isKingChecked(chessBoard[startTile.getY()][startTile.getX()], chessBoard[startTile.getY()][i])){
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 	
 	public boolean isValidPawnMove(Tile[][] currentChessBoard, Pawn pawn, int startY, int startX, int endY, int endX) {
@@ -296,11 +316,13 @@ public class Chess {
 				return true;
 			}
 		}else if(isHorizontalMovement(startY, endY)) {
+
 			int xDir = startX - endX;
 			if(xDir < 0) { // if xDir is less than 0: direction is right
 				for(int i = ++startX; i < endX+1; i++) {
 					if(!pieceCanMoveToCurrentTile(currentChessBoard, teamColor, startY, i, endY, endX))
-						return false;				
+						return false;
+					
 				}
 				return true;
 			}else {
@@ -366,6 +388,8 @@ public class Chess {
 	}
 	
 	public boolean pieceCanMoveToCurrentTile(Tile[][] currentChessBoard, game.Color teamColor, int currentY, int currentX, int endY, int endX) {
+		
+		//TODO: some kind of check for castling
 		if(isPathsEndPoint(currentY, currentX, endY, endX)) 
 			return !isTileOccupiedByFriendly(currentChessBoard[currentY][currentX], teamColor);
 		else

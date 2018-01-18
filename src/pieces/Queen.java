@@ -45,6 +45,15 @@ public class Queen extends Piece {
 		game.Type cloneType = this.type;
 		return new Queen(cloneColor, cloneType);
 	}
+	
+	@Override
+	public boolean getIsFirstMove() {
+		return false;
+	}
+	
+	public String toString() {
+		return color.toString() + " " + type.toString();
+	}
 
 
 }

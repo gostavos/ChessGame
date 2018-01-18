@@ -123,27 +123,37 @@ public class KingTests {
 	}
 	
 	@Test
-	public void findKingIsChecked() throws Exception{
+	public void castlingValidTest() throws Exception{
 		Chess chess = new Chess();
-		Tile[][] chessBoard = chess.populateBoard();
-		Piece checkingPiece = new Rook(game.Color.BLACK, game.Type.ROOK);
-		Tile kingTile = chessBoard[4][3];
-		Tile checkTile = chessBoard[4][1];
-		checkTile.setPiece(checkingPiece);
-		assertEquals(chess.pieceHasKingChecked(chessBoard, checkTile, kingTile, game.Color.WHITE), true);
+		Tile[][] chessBoard = chess.initiateChessBoard();
+		chessBoard[7][4].setPiece(new King(game.Color.WHITE, game.Type.KING));
+		chessBoard[7][7].setPiece(new Rook(game.Color.WHITE, game.Type.ROOK));
+		
+		assertEquals(chess.isCastling(chessBoard, chessBoard[7][4], chessBoard[7][7]), true);
 	}
 	
-	@Test
-	public void kingNotCheckedByFriendly() throws Exception{
-		Chess chess = new Chess();
-		Tile[][] chessBoard = chess.populateBoard();
-
-		Piece notKingChecker = new Rook(Color.WHITE, Type.ROOK);
-		Tile kingTile = chessBoard[4][3];
-		Tile checkTile = chessBoard[4][1];
-		checkTile.setPiece(notKingChecker);
-		
-		assertEquals(chess.pieceHasKingChecked(chessBoard, checkTile, kingTile, game.Color.WHITE), false);
-	}
+//	@Test
+//	public void findKingIsChecked() throws Exception{
+//		Chess chess = new Chess();
+//		Tile[][] chessBoard = chess.populateBoard();
+//		Piece checkingPiece = new Rook(game.Color.BLACK, game.Type.ROOK);
+//		Tile kingTile = chessBoard[4][3];
+//		Tile checkTile = chessBoard[4][1];
+//		checkTile.setPiece(checkingPiece);
+//		assertEquals(chess.pieceHasKingChecked(chessBoard, checkTile, kingTile, game.Color.WHITE), true);
+//	}
+	
+//	@Test
+//	public void kingNotCheckedByFriendly() throws Exception{
+//		Chess chess = new Chess();
+//		Tile[][] chessBoard = chess.populateBoard();
+//
+//		Piece notKingChecker = new Rook(Color.WHITE, Type.ROOK);
+//		Tile kingTile = chessBoard[4][3];
+//		Tile checkTile = chessBoard[4][1];
+//		checkTile.setPiece(notKingChecker);
+//		
+//		assertEquals(chess.pieceHasKingChecked(chessBoard, checkTile, kingTile, game.Color.WHITE), false);
+//	}
 
 }

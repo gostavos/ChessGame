@@ -4,8 +4,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.*;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
@@ -17,7 +22,7 @@ import com.sun.glass.events.KeyEvent;
 import board.Tile;
 import game.Chess;
 import game.Type;
-import pieces.Piece;
+import pieces.*;
 
 public class BoardGUI extends JFrame{
 
@@ -37,13 +42,15 @@ public class BoardGUI extends JFrame{
 	private JPanel headPanel;
 	
 	private JTextArea statusMessage;
+	
+	private File savedFile;
 
 
 
 	
 	public BoardGUI(){
 		chess = new Chess();
-		chessBoard = chess.populateBoard();
+		chessBoard = chess.initiateChessBoard();
 //		setLayout(new GridLayout(8, 8));
 		allButtons = new ArrayList<>();
 		
@@ -82,6 +89,14 @@ public class BoardGUI extends JFrame{
 		JMenuItem newGameMenuItem = new JMenuItem("New game");
 		newGameMenuItem.addActionListener(new NewGameActionListener());
 		menu.add(newGameMenuItem);
+		
+		JMenuItem saveGameMenuItem = new JMenuItem("Save game");
+		saveGameMenuItem.addActionListener(new SaveGameActionListener());
+		menu.add(saveGameMenuItem);
+		
+		JMenuItem loadGameMenuItem = new JMenuItem("Load game");
+		loadGameMenuItem.addActionListener(new LoadGameActionListener());
+		menu.add(loadGameMenuItem);
 		
 		menuBar.add(menu);
 		
@@ -176,6 +191,9 @@ public class BoardGUI extends JFrame{
 	}
 	
 	public void tick() {
+		placeChessPieces(chessBoard);
+		resetCheckeredPattern();
+
 		if(isWhitePlayersTurn) {
 			statusMessage.setText("White player's turn");
 		}else {
@@ -205,11 +223,149 @@ public class BoardGUI extends JFrame{
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			placeChessPieces(chessBoard);
+			chessBoard = chess.placePiecesOnStartingPositions();
 			tick();
-
 		}
 		
+	}
+	
+	class SaveGameActionListener implements ActionListener{
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JFileChooser jfc = new JFileChooser();
+			int answer = jfc.showSaveDialog(BoardGUI.this);
+			if(answer == JFileChooser.APPROVE_OPTION) {
+				savedFile = jfc.getSelectedFile();
+				
+				try {
+					FileWriter outFile = new FileWriter(savedFile);
+					PrintWriter out = new PrintWriter(outFile);
+					
+					if(isWhitePlayersTurn) {
+						out.println("WHITES TURN");
+					}else {
+						out.println("BLACKS TURN");
+					}
+					
+					for(int row = 0; row < 8; row++){
+						for(int col = 0; col < 8; col++){
+							if(chessBoard[row][col].getPiece() != null) {
+								out.print(chessBoard[row][col].getPiece().toString() + ",");
+							}else {
+								out.print("EMPTY TILE,");
+							}
+						}
+						out.println();
+					}
+					out.close();
+					outFile.close();
+				
+				}catch(FileNotFoundException fe) {
+					
+				}catch(IOException ie) {
+					
+				}
+			}
+		}
+	}
+	
+	class LoadGameActionListener implements ActionListener{
+		
+		@SuppressWarnings("resource")
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			//TODO: remove any pieces on board
+			
+			JFileChooser jfc = new JFileChooser();
+			int answer = jfc.showOpenDialog(BoardGUI.this);
+			if(answer == JFileChooser.APPROVE_OPTION) {
+				savedFile = jfc.getSelectedFile();
+				try {
+					
+					FileReader in = new FileReader(savedFile);
+					BufferedReader br = new BufferedReader(in);
+					String rowString = br.readLine();
+					
+					if(rowString.equals("WHITES TURN")){
+						isWhitePlayersTurn = true;
+					}else if(rowString.equals("BLACKS TURN")) {
+						isWhitePlayersTurn = false;
+					}
+					
+					for(int row = 0; row < 8; row++){
+						rowString = br.readLine();
+						String[] wholeRow = rowString.split("\\,");
+						for(int col = 0; col < 8; col++) {
+							Tile tile = chessBoard[row][col];
+							String tileString = wholeRow[col];
+							addLoadedDataForTile(tile, tileString);
+						}
+					}
+					
+					in.close();
+					br.close();
+					
+					tick();
+					
+				}catch(FileNotFoundException fe) {
+					statusMessage.setText("Cannot load game from this file: " + fe.getMessage());
+				}catch(IOException ie) {
+					statusMessage.setText("Cannot load game from this file: " + ie.getMessage());
+				}catch(IndexOutOfBoundsException io) {
+					statusMessage.setText("Cannot load game from this file: " + io.getMessage());
+				}catch(NullPointerException ne) {
+					statusMessage.setText("Cannot load game from this file: " + ne.getMessage());
+				}
+			}
+		}
+		
+		public void addLoadedDataForTile(Tile tile, String loadedData) {
+			
+			Piece piece = null;
+		
+			if(loadedData.contains("WHITE PAWN")) {
+				piece = new Pawn(game.Color.WHITE, game.Type.PAWN);
+			}else if(loadedData.contains("BLACK PAWN")) {
+				 piece = new Pawn(game.Color.BLACK, game.Type.PAWN);
+				
+			}else if(loadedData.contains("WHITE ROOK")){
+				 piece = new Rook(game.Color.WHITE, game.Type.ROOK);
+
+			}else if(loadedData.contains("BLACK ROOK")) {
+				 piece = new Rook(game.Color.BLACK, game.Type.ROOK);
+				
+			}else if(loadedData.contains("WHITE KING")) {
+				 piece = new King(game.Color.WHITE, game.Type.KING);
+			}else if(loadedData.contains("BLACK KING")) {
+				 piece = new King(game.Color.BLACK, game.Type.KING);
+			}
+			
+			else if(loadedData.contains("WHITE KNIGHT")){
+				 piece = new Knight(game.Color.WHITE, game.Type.KNIGHT);
+			}else if(loadedData.contains("BLACK KNIGHT")) {
+				 piece = new Knight(game.Color.BLACK, game.Type.KNIGHT);
+			}
+			
+			else if(loadedData.contains("WHITE BISHOP")) {
+				 piece = new Bishop(game.Color.WHITE, game.Type.BISHOP);
+			}else if(loadedData.contains("BLACK BISHOP")) {
+				 piece = new Bishop(game.Color.BLACK, game.Type.BISHOP);
+			}
+			
+			else if(loadedData.contains("WHITE QUEEN")) {
+				 piece = new Queen(game.Color.WHITE, game.Type.QUEEN);
+			}else if(loadedData.contains("BLACK QUEEN")) {
+				 piece = new Queen(game.Color.BLACK, game.Type.QUEEN);
+			}
+			
+			if(piece != null) {
+				if(loadedData.contains("false")) {
+					piece.setFirstMove(false);
+				}
+				tile.setPiece(piece);
+			}
+		}
 	}
 	
 	
@@ -221,7 +377,6 @@ public class BoardGUI extends JFrame{
 			
 			CustomJButton button = (CustomJButton)e.getSource();
 			
-			
 			if(!hasSelectedPiece && playerSelectedAlliedPiece(button)){
 				tick();
 				startTile = button.getTile();
@@ -232,16 +387,11 @@ public class BoardGUI extends JFrame{
 				endTile = button.getTile();
 				if(chess.isValidMove(startTile, endTile, chessBoard)) {
 					chess.movePiece(startTile, endTile);
-//					chessBoard = chess.getChessBoard();
-					placeChessPieces(chessBoard);
 					hasSelectedPiece = false;
-//					chess.resetTileBorders();
-					resetCheckeredPattern();
-					changePlayerTurn(); //changes it to other players turn
+					changePlayerTurn(); 
 					tick();
 				}else {
 					hasSelectedPiece = false;
-//					chess.resetTileBorders();
 					resetCheckeredPattern();
 					statusMessage.setText("Illegal move");
 				}	

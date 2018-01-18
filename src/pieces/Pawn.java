@@ -58,8 +58,15 @@ public class Pawn extends Piece{
 		pawn.setFirstMove(this.isFirstMove);
 		return pawn;
 	}
+	
+	public String toString() {
+		return color.toString() + " " + type.toString() + " " + isFirstMove;
+	}
 
-
+	@Override
+	public boolean getIsFirstMove() {
+		return isFirstMove;
+	}
 
 //	@Override
 //	public boolean isValidPath(Tile startTile, Tile endTile) {

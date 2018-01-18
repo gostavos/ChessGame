@@ -43,5 +43,14 @@ public class Knight extends Piece{
 	public Piece clone() {
 		return new Knight(this.color, this.type);
 	}
+	
+	@Override
+	public boolean getIsFirstMove() {
+		return false;
+	}
+	
+	public String toString() {
+		return color.toString() + " " + type.toString();
+	}
 
 }

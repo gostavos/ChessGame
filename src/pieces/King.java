@@ -20,6 +20,8 @@ public class King extends Piece {
 
 	@Override
 	public boolean isValidMovementForPiece(int startY, int startX, int endY, int endX) {
+		if(isFirstMove && endX == 7 || isFirstMove && endX == 0)
+			return true;
 		int xDif = Math.abs(startX - endX);
 		int yDif = Math.abs(startY - endY);
 		return xDif < 2 && xDif >= 0 && yDif < 2 && yDif >= 0;
@@ -44,5 +46,14 @@ public class King extends Piece {
 		Piece king = new King(this.color, this.type);
 		king.setFirstMove(this.isFirstMove);
 		return king;
+	}
+	
+	@Override
+	public boolean getIsFirstMove() {
+		return isFirstMove;
+	}
+	
+	public String toString() {
+		return color.toString() + " " + type.toString() + " " + isFirstMove;
 	}
 }
