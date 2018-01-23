@@ -3,7 +3,6 @@ package GUI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,30 +12,26 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.*;
 
 import com.sun.glass.events.KeyEvent;
 
 import board.Tile;
 import game.Chess;
-import game.Type;
-import pieces.*;
+import game.Rules;
 
 public class BoardGUI extends JFrame{
 
-	private final JPanel gui = new JPanel(new BorderLayout(3, 3));
 	private Color darkColor = Color.DARK_GRAY;
 	private Color lightColor = Color.LIGHT_GRAY;
 	private boolean hasSelectedPiece = false;
 	private boolean isWhitePlayersTurn = true; //white player always starts
 	private Chess chess;
 	private Tile[][] chessBoard;
-	private BoardGUI boardGUI;
 	private ArrayList<CustomJButton> allButtons;
 	private Tile startTile = null;
 	private Tile endTile = null;
+	private Rules rules;
 	
 	private JPanel gridPanel;
 	private JPanel headPanel;
@@ -51,17 +46,14 @@ public class BoardGUI extends JFrame{
 	public BoardGUI(){
 		chess = new Chess();
 		chessBoard = chess.initiateChessBoard();
-//		setLayout(new GridLayout(8, 8));
+		rules = chess.getRules();
 		allButtons = new ArrayList<>();
 		
 		headPanel();
 		gridPanel(chessBoard);
 		mainPanel();
 		
-//		paintBoard(chessBoard);
-		
 		this.setTitle("My Fabulous Chess Börd"); // Setting the title of board
-//		this.setLayout(new GridLayout(8, 8)); // GridLayout will arrange elements in Grid Manager 8 X 8
 		this.setSize(600,600); // Size of the chess board
 		this.setVisible(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -272,16 +264,16 @@ public class BoardGUI extends JFrame{
 	
 	class LoadGameActionListener implements ActionListener{
 		
-		@SuppressWarnings("resource")
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			//TODO: remove any pieces on board
 			
 			JFileChooser jfc = new JFileChooser();
 			int answer = jfc.showOpenDialog(BoardGUI.this);
 			if(answer == JFileChooser.APPROVE_OPTION) {
 				savedFile = jfc.getSelectedFile();
 				try {
+					
+					chess.removeAllPiecesFromBoard();
 					
 					FileReader in = new FileReader(savedFile);
 					BufferedReader br = new BufferedReader(in);
@@ -299,7 +291,7 @@ public class BoardGUI extends JFrame{
 						for(int col = 0; col < 8; col++) {
 							Tile tile = chessBoard[row][col];
 							String tileString = wholeRow[col];
-							addLoadedDataForTile(tile, tileString);
+							chess.addLoadedDataForTile(tile, tileString);
 						}
 					}
 					
@@ -319,53 +311,6 @@ public class BoardGUI extends JFrame{
 				}
 			}
 		}
-		
-		public void addLoadedDataForTile(Tile tile, String loadedData) {
-			
-			Piece piece = null;
-		
-			if(loadedData.contains("WHITE PAWN")) {
-				piece = new Pawn(game.Color.WHITE, game.Type.PAWN);
-			}else if(loadedData.contains("BLACK PAWN")) {
-				 piece = new Pawn(game.Color.BLACK, game.Type.PAWN);
-				
-			}else if(loadedData.contains("WHITE ROOK")){
-				 piece = new Rook(game.Color.WHITE, game.Type.ROOK);
-
-			}else if(loadedData.contains("BLACK ROOK")) {
-				 piece = new Rook(game.Color.BLACK, game.Type.ROOK);
-				
-			}else if(loadedData.contains("WHITE KING")) {
-				 piece = new King(game.Color.WHITE, game.Type.KING);
-			}else if(loadedData.contains("BLACK KING")) {
-				 piece = new King(game.Color.BLACK, game.Type.KING);
-			}
-			
-			else if(loadedData.contains("WHITE KNIGHT")){
-				 piece = new Knight(game.Color.WHITE, game.Type.KNIGHT);
-			}else if(loadedData.contains("BLACK KNIGHT")) {
-				 piece = new Knight(game.Color.BLACK, game.Type.KNIGHT);
-			}
-			
-			else if(loadedData.contains("WHITE BISHOP")) {
-				 piece = new Bishop(game.Color.WHITE, game.Type.BISHOP);
-			}else if(loadedData.contains("BLACK BISHOP")) {
-				 piece = new Bishop(game.Color.BLACK, game.Type.BISHOP);
-			}
-			
-			else if(loadedData.contains("WHITE QUEEN")) {
-				 piece = new Queen(game.Color.WHITE, game.Type.QUEEN);
-			}else if(loadedData.contains("BLACK QUEEN")) {
-				 piece = new Queen(game.Color.BLACK, game.Type.QUEEN);
-			}
-			
-			if(piece != null) {
-				if(loadedData.contains("false")) {
-					piece.setFirstMove(false);
-				}
-				tile.setPiece(piece);
-			}
-		}
 	}
 	
 	
@@ -381,12 +326,12 @@ public class BoardGUI extends JFrame{
 				tick();
 				startTile = button.getTile();
 				startTile.setBackground(java.awt.Color.blue);
-				chess.findAllValidMoves(startTile);
+				rules.altFindAllValidMoves(startTile);
 				hasSelectedPiece = true;
 			}else if(hasSelectedPiece) {
 				endTile = button.getTile();
-				if(chess.isValidMove(startTile, endTile, chessBoard)) {
-					chess.movePiece(startTile, endTile);
+				if(rules.isValidMove(startTile, endTile, chessBoard)) {
+					rules.movePiece(startTile, endTile);
 					hasSelectedPiece = false;
 					changePlayerTurn(); 
 					tick();
